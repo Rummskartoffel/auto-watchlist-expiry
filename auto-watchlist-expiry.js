@@ -4,7 +4,8 @@
  * (you can still pick a different time using the dropdown, though). Pages
  * already on your watchlist are disregarded.
  * 
- * Tested in Vector, Monobook and Timeless. Not tested with VisualEditor.
+ * Tested in Vector, Monobook and Timeless. Works with the 2010 source editor,
+ * VisualEditor, and VisualEditor's source mode.
  *
  * To install, put the following two lines in your common.js:
 
@@ -18,10 +19,7 @@ mw.loader.load("/w/index.php?title=User:Rummskartoffel/auto-watchlist-expiry.js&
  * print a message to the browser console.
  */
 mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
-    if (
-        ["edit", "submit"].indexOf(mw.config.get("wgAction")) === -1 ||
-        $("#ca-unwatch").length
-    ) {
+    if ($("#ca-unwatch").length) {
         return;
     }
     if (typeof window.autoWatchlistExpiry !== "string" || !is_expiry_valid()) {
@@ -33,7 +31,20 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
     main();
 
     function main() {
-        var expiry_dropdown = OO.ui.infuse($("#wpWatchlistExpiryWidget"));
+        var old_editor_expiry_dropdown = $("#wpWatchlistExpiryWidget");
+        if (old_editor_expiry_dropdown.length)
+            set_dropdown_value(OO.ui.infuse(old_editor_expiry_dropdown));
+        // Because opening VE, unlike opening the old editor, doesn't navigate
+        // and therefore doesn't cause user scripts to be (re-)loaded, we have
+        // to register this hook unconditionally.
+        mw.hook("ve.saveDialog.stateChanged").add(function () {
+            set_dropdown_value(
+                ve.init.target.saveDialog.checkboxesByName.wpWatchlistExpiry
+            );
+        });
+    }
+
+    function set_dropdown_value(expiry_dropdown) {
         var expiry_dropdown_items =
             expiry_dropdown.dropdownWidget.getMenu().items;
         if (
