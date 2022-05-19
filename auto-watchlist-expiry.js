@@ -22,7 +22,10 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
     if ($("#ca-unwatch").length) {
         return;
     }
-    if (typeof window.autoWatchlistExpiry !== "string" || !is_expiry_valid()) {
+    if (
+        typeof window.autoWatchlistExpiry !== "string" ||
+        !is_valid_expiry(window.autoWatchlistExpiry)
+    ) {
         console.error(
             "auto-watchlist-expiry: window.autoWatchlistExpiry is invalid, exiting."
         );
@@ -71,8 +74,8 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
         dropdown.setValue(value);
     }
 
-    function is_expiry_valid() {
-        if (window.autoWatchlistExpiry === "infinite") {
+    function is_valid_expiry(expiry) {
+        if (expiry === "infinite") {
             console.warn(
                 "auto-watchlist-expiry: Setting window.autoWatchlistExpiry to" +
                     ' "infinite" is possible, but unnecessary. You can just ' +
@@ -80,8 +83,9 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
             );
             return true;
         }
-        var count = parseInt(window.autoWatchlistExpiry.split(" ")[0]),
-            unit = window.autoWatchlistExpiry.split(" ")[1];
+        var tmp = expiry.split(" "),
+            count = parseInt(tmp[0]),
+            unit = tmp[1];
         if (isNaN(count)) return false;
         if (
             (/hours?/.test(unit) && count <= 4344) ||
