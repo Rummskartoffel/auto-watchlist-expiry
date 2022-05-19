@@ -22,10 +22,7 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
     if ($("#ca-unwatch").length) {
         return;
     }
-    if (
-        typeof window.autoWatchlistExpiry !== "string" ||
-        !is_valid_expiry(window.autoWatchlistExpiry)
-    ) {
+    if (!is_valid_expiry(window.autoWatchlistExpiry)) {
         console.error(
             "auto-watchlist-expiry: window.autoWatchlistExpiry is invalid, exiting."
         );
@@ -41,7 +38,7 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
         if (old_editor_expiry_dropdown.length)
             set_dropdown_value(
                 OO.ui.infuse(old_editor_expiry_dropdown),
-                expiry
+                expiry.edit || expiry
             );
         // Because opening VE, unlike opening the old editor, doesn't navigate
         // and therefore doesn't cause user scripts to be (re-)loaded, we have
@@ -49,7 +46,7 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
         mw.hook("ve.saveDialog.stateChanged").add(function () {
             set_dropdown_value(
                 ve.init.target.saveDialog.checkboxesByName.wpWatchlistExpiry,
-                expiry
+                expiry.edit || expiry
             );
         });
     }
@@ -75,25 +72,25 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
     }
 
     function is_valid_expiry(expiry) {
-        if (expiry === "infinite") {
-            console.warn(
-                "auto-watchlist-expiry: Setting window.autoWatchlistExpiry to" +
-                    ' "infinite" is possible, but unnecessary. You can just ' +
-                    "disable the script to achieve the same result."
-            );
-            return true;
+        if (typeof expiry === "string") {
+            if (expiry === "infinite") return true;
+
+            var tmp = expiry.split(" "),
+                count = parseInt(tmp[0]),
+                unit = tmp[1];
+            if (isNaN(count)) return false;
+            if (
+                (/hours?/.test(unit) && count <= 4344) ||
+                (/days?/.test(unit) && count <= 181) ||
+                (/weeks?/.test(unit) && count <= 25) ||
+                (/months?/.test(unit) && count <= 6)
+            )
+                return true;
+            return false;
+        } else if (typeof expiry === "object") {
+            var result = true;
+            return result && is_valid_expiry(expiry.edit);
         }
-        var tmp = expiry.split(" "),
-            count = parseInt(tmp[0]),
-            unit = tmp[1];
-        if (isNaN(count)) return false;
-        if (
-            (/hours?/.test(unit) && count <= 4344) ||
-            (/days?/.test(unit) && count <= 181) ||
-            (/weeks?/.test(unit) && count <= 25) ||
-            (/months?/.test(unit) && count <= 6)
-        )
-            return true;
         return false;
     }
 });
