@@ -24,7 +24,7 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
     }
     if (typeof window.autoWatchlistExpiry !== "string" || !is_expiry_valid()) {
         console.error(
-            "auto-watchlist-expiry: Window.autoWatchlistExpiry is invalid, exiting."
+            "auto-watchlist-expiry: window.autoWatchlistExpiry is invalid, exiting."
         );
         return;
     }
