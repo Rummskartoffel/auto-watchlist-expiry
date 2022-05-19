@@ -28,41 +28,47 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
         );
         return;
     }
-    main();
+    main(window.autoWatchlistExpiry);
 
-    function main() {
+    function main(expiry) {
+        if (mw.config.get("wgAction") == "delete") {
+            return;
+        }
         var old_editor_expiry_dropdown = $("#wpWatchlistExpiryWidget");
         if (old_editor_expiry_dropdown.length)
-            set_dropdown_value(OO.ui.infuse(old_editor_expiry_dropdown));
+            set_dropdown_value(
+                OO.ui.infuse(old_editor_expiry_dropdown),
+                expiry
+            );
         // Because opening VE, unlike opening the old editor, doesn't navigate
         // and therefore doesn't cause user scripts to be (re-)loaded, we have
         // to register this hook unconditionally.
         mw.hook("ve.saveDialog.stateChanged").add(function () {
             set_dropdown_value(
-                ve.init.target.saveDialog.checkboxesByName.wpWatchlistExpiry
+                ve.init.target.saveDialog.checkboxesByName.wpWatchlistExpiry,
+                expiry
             );
         });
     }
 
-    function set_dropdown_value(expiry_dropdown) {
-        var expiry_dropdown_items =
-            expiry_dropdown.dropdownWidget.getMenu().items;
+    function set_dropdown_value(dropdown, value) {
+        var items = dropdown.dropdownWidget.getMenu().items;
         if (
-            !expiry_dropdown_items.filter(function (item) {
-                return item.data === window.autoWatchlistExpiry;
+            !items.filter(function (item) {
+                return item.data === value;
             }).length
         ) {
-            expiry_dropdown.setOptions(
-                expiry_dropdown_items
+            dropdown.setOptions(
+                items
                     .map(function (item) {
                         return { data: item.data, label: item.label };
                     })
                     .concat({
-                        data: window.autoWatchlistExpiry,
+                        data: value,
                     })
             );
         }
-        expiry_dropdown.setValue(window.autoWatchlistExpiry);
+        dropdown.setValue(value);
     }
 
     function is_expiry_valid() {
