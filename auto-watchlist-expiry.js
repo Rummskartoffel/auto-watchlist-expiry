@@ -83,10 +83,6 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
         var count = parseInt(window.autoWatchlistExpiry.split(" ")[0]),
             unit = window.autoWatchlistExpiry.split(" ")[1];
         if (isNaN(count)) return false;
-        if (count === 0) {
-            window.autoWatchlistExpiry = "0 days";
-            return true;
-        }
         if (
             (/hours?/.test(unit) && count <= 4344) ||
             (/days?/.test(unit) && count <= 181) ||
