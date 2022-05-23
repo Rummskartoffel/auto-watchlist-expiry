@@ -32,6 +32,19 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
 
     function main(expiry) {
         if (mw.config.get("wgAction") == "delete") {
+            if (!expiry.delete) return;
+
+            var api = new mw.Api();
+            var message = "watchlist-expiry-options";
+            api.getMessages(message).then(function (response) {
+                var default_expiry_options = response[message]
+                    .split(",")
+                    .map(function (option) {
+                        var tmp = option.split(":");
+                        return { label: tmp[0], data: tmp[1] };
+                    });
+                setup_watch_on_delete(default_expiry_options, expiry);
+            });
             return;
         }
         var old_editor_expiry_dropdown = $("#wpWatchlistExpiryWidget");
@@ -48,6 +61,28 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
                 ve.init.target.saveDialog.checkboxesByName.wpWatchlistExpiry,
                 expiry.edit || expiry
             );
+        });
+    }
+
+    function setup_watch_on_delete(default_expiry_options, expiry) {
+        var watch_checkbox_field_layout = OO.ui.infuse(
+            $("#wpWatch").closest(".oo-ui-fieldLayout")
+        );
+
+        var expiry_dropdown = new OO.ui.DropdownInputWidget({
+            options: default_expiry_options,
+        });
+        set_dropdown_value(expiry_dropdown, expiry.delete);
+        watch_checkbox_field_layout.$element.after(expiry_dropdown.$element);
+
+        $("#deleteconfirm").on("submit", function () {
+            var watch_checkbox = watch_checkbox_field_layout.getField();
+            if (watch_checkbox.isSelected()) {
+                new mw.Api().watch(
+                    mw.config.get("wgRelevantPageName"),
+                    expiry_dropdown.getValue()
+                );
+            }
         });
     }
 
@@ -89,6 +124,10 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
             return false;
         } else if (typeof expiry === "object") {
             var result = true;
+            if (expiry.delete) {
+                result &&= typeof expiry.delete == "string";
+                result &&= is_valid_expiry(expiry.delete);
+            }
             return result && is_valid_expiry(expiry.edit);
         }
         return false;
