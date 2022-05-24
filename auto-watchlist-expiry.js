@@ -1,22 +1,8 @@
 /**
  * <nowiki>
- * Automatically watchlists every page you edit for a user-definable duration
- * (you can still pick a different time using the dropdown, though). Pages
- * already on your watchlist are disregarded.
- * 
- * Tested in Vector, Monobook and Timeless. Works with the 2010 source editor,
- * VisualEditor, and VisualEditor's source mode.
- *
- * To install, put the following two lines in your common.js:
-
-window.autoWatchlistExpiry = "2 weeks";
-mw.loader.load("/w/index.php?title=User:Rummskartoffel/auto-watchlist-expiry.js&action=raw&ctype=text/javascript"); // Backlink: [[User:Rummskartoffel/auto-watchlist-expiry.js]]
-
- * Set the window.autoWatchlistExpiry to a duration of your choosing in either
- * hours, days, weeks, or months. There's a limit of 181 days (meaning at most 6
- * months, 25 weeks etc.) imposed by MediaWiki, which I can't do anything about.
- * If the duration specified is invalid, the script won't do anything except
- * print a message to the browser console.
+ * Automatically watchlists every page you edit or delete for a user-definable
+ * duration. See [[w:en:User:Rummskartoffel/auto-watchlist-expiry]] for usage
+ * instructions.
  */
 mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
     if ($("#ca-unwatch").length) {
