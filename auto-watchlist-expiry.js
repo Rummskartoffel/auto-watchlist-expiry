@@ -33,6 +33,7 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
     function main(expiry) {
         if (mw.config.get("wgAction") == "delete") {
             if (!expiry.delete) return;
+            if ($(".permissions-errors").length) return;
 
             var api = new mw.Api();
             var message = "watchlist-expiry-options";
