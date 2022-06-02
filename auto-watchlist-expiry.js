@@ -23,6 +23,7 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
 
             var api = new mw.Api();
             var message = "watchlist-expiry-options";
+            // TODO: Cache this when possible
             api.getMessages(message).then(function (response) {
                 var default_expiry_options = response[message]
                     .split(",")
