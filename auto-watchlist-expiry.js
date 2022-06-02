@@ -35,21 +35,14 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
             });
             return;
         }
-        var old_editor_expiry_dropdown = $("#wpWatchlistExpiryWidget");
-        if (old_editor_expiry_dropdown.length)
-            set_dropdown_value(
-                OO.ui.infuse(old_editor_expiry_dropdown),
-                expiry.edit || expiry
-            );
+
         // Because opening VE, unlike opening the old editor, doesn't navigate
         // and therefore doesn't cause user scripts to be (re-)loaded, we have
-        // to register this hook unconditionally.
-        mw.hook("ve.saveDialog.stateChanged").add(function () {
-            set_dropdown_value(
-                ve.init.target.saveDialog.checkboxesByName.wpWatchlistExpiry,
-                expiry.edit || expiry
-            );
-        });
+        // to register its hook unconditionally. Handling the old editor
+        // unconditionally as well is not necessary, but simplifies the code.
+        if (mw.config.get("wgCurRevisionId") == 0 && expiry.create)
+            setup_watch_on_edit(expiry.create);
+        else setup_watch_on_edit(expiry.edit || expiry);
     }
 
     function setup_watch_on_delete(default_expiry_options, expiry) {
@@ -71,6 +64,25 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
                     expiry_dropdown.getValue()
                 );
             }
+        });
+    }
+
+    /**
+     * @param {string} expiry
+     */
+    function setup_watch_on_edit(expiry) {
+        var old_editor_expiry_dropdown = $("#wpWatchlistExpiryWidget");
+        if (old_editor_expiry_dropdown.length)
+            set_dropdown_value(
+                OO.ui.infuse(old_editor_expiry_dropdown),
+                expiry
+            );
+
+        mw.hook("ve.saveDialog.stateChanged").add(function () {
+            set_dropdown_value(
+                ve.init.target.saveDialog.checkboxesByName.wpWatchlistExpiry,
+                expiry
+            );
         });
     }
 
@@ -115,6 +127,10 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
             if (expiry.delete) {
                 result &&= typeof expiry.delete == "string";
                 result &&= is_valid_expiry(expiry.delete);
+            }
+            if (expiry.create) {
+                result &&= typeof expiry.create == "string";
+                result &&= is_valid_expiry(expiry.create);
             }
             return result && is_valid_expiry(expiry.edit);
         }
