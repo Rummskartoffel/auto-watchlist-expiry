@@ -123,16 +123,17 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
                 return true;
             return false;
         } else if (typeof expiry === "object") {
-            var result = true;
-            if (expiry.delete) {
-                result &&= typeof expiry.delete == "string";
-                result &&= is_valid_expiry(expiry.delete);
+            var optional_options = ["delete", "create"];
+            for (var i = 0; i < optional_options.length; ++i) {
+                if (expiry[optional_options[i]]) {
+                    if (
+                        typeof expiry[optional_options[i]] !== "string" ||
+                        !is_valid_expiry(expiry[optional_options[i]])
+                    )
+                        return false;
+                }
             }
-            if (expiry.create) {
-                result &&= typeof expiry.create == "string";
-                result &&= is_valid_expiry(expiry.create);
-            }
-            return result && is_valid_expiry(expiry.edit);
+            return is_valid_expiry(expiry.edit);
         }
         return false;
     }
