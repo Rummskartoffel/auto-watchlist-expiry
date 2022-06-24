@@ -4,7 +4,7 @@
  * duration. See [[w:en:User:Rummskartoffel/auto-watchlist-expiry]] for usage
  * instructions.
  */
-mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
+mw.loader.using(["oojs-ui", "mediawiki.api", "mediawiki.Uri"], function () {
     if ($("#ca-unwatch").length) {
         return;
     }
@@ -42,6 +42,8 @@ mw.loader.using(["oojs-ui", "mediawiki.api"], function () {
         // unconditionally as well is not necessary, but simplifies the code.
         if (mw.config.get("wgCurRevisionId") == 0 && expiry.create)
             setup_watch_on_edit(expiry.create);
+        else if (new mw.Uri(location.toString()).query.undo && expiry.undo)
+            setup_watch_on_edit(expiry.undo);
         else setup_watch_on_edit(expiry.edit || expiry);
     }
 
