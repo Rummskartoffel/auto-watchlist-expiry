@@ -116,11 +116,17 @@ mw.loader.using(["oojs-ui", "mediawiki.api", "mediawiki.Uri"], function () {
                 count = parseInt(tmp[0]),
                 unit = tmp[1];
             if (isNaN(count)) return false;
+            var maxYears = 1,
+                maxMonths = 12 * maxYears,
+                maxWeeks = 52 * maxYears,
+                maxDays = 365 * maxYears,
+                maxHours = 24 * maxDays;
             if (
-                (/hours?/.test(unit) && count <= 4344) ||
-                (/days?/.test(unit) && count <= 181) ||
-                (/weeks?/.test(unit) && count <= 25) ||
-                (/months?/.test(unit) && count <= 6)
+                (/hours?/.test(unit) && count <= maxHours) ||
+                (/days?/.test(unit) && count <= maxDays) ||
+                (/weeks?/.test(unit) && count <= maxWeeks) ||
+                (/months?/.test(unit) && count <= maxMonths) ||
+                (/years?/.test(unit) && count <= maxYears)
             )
                 return true;
             return false;
