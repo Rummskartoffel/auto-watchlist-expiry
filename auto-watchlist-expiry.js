@@ -125,7 +125,7 @@ mw.loader.using(["oojs-ui", "mediawiki.api", "mediawiki.Uri"], function () {
                 return true;
             return false;
         } else if (typeof expiry === "object") {
-            var optional_options = ["delete", "create"];
+            var optional_options = ["delete", "create", "undo"];
             for (var i = 0; i < optional_options.length; ++i) {
                 if (expiry[optional_options[i]]) {
                     if (
